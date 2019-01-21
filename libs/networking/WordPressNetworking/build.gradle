@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.wordpress:utils:1.18.1'
     implementation 'com.automattic:rest:1.0.7'
 
+    api 'com.mcxiaoke.volley:library:+'
+
     lintChecks 'org.wordpress:lint:1.0.1'
 }
 
