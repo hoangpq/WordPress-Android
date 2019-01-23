@@ -59,6 +59,7 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
 
     private boolean mIsNewPost;
     private boolean mIsRotating;
+    private static int mLastOrientation = Configuration.ORIENTATION_UNDEFINED;
 
     public static GutenbergEditorFragment newInstance(String title,
                                                       String content,
@@ -80,6 +81,13 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        int newOrientation = getResources().getConfiguration().orientation;
+        if (newOrientation != mLastOrientation) {
+            mLastOrientation = newOrientation;
+            mIsRotating = true;
+        } else {
+            mIsRotating = false;
+        }
 
         if (savedInstanceState == null) {
             boolean isNewPost = getArguments().getBoolean(ARG_IS_NEW_POST);
@@ -103,8 +111,6 @@ public class GutenbergEditorFragment extends EditorFragmentAbstract implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mIsRotating = savedInstanceState != null;
-
         View view = inflater.inflate(R.layout.fragment_gutenberg_editor, container, false);
 
         mTitle = view.findViewById(R.id.title);
