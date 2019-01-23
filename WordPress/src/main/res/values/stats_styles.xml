@@ -123,7 +123,7 @@
 
     <style name="StatsBlockValue" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textColor">@color/grey_darken_20</item>
-        <item name="android:textSize">@dimen/text_sz_large</item>
+        <item name="android:textSize">@dimen/text_sz_medium</item>
     </style>
 
     <style name="StatsBlockEmpty" parent="TextAppearance.AppCompat.Body1">
