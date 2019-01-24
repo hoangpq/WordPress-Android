@@ -875,6 +875,7 @@ public class UploadService extends Service {
      * their corresponding associated media is uploaded first.
     */
     private boolean doFinalProcessingOfPosts(OnPostUploaded event) {
+        boolean atLeastOnePostToUpload = false;
         // If this was the last media upload a post was waiting for, update the post content
         // This done for pending as well as cancelled and failed posts
         for (PostModel postModel : mUploadStore.getAllRegisteredPosts()) {
@@ -902,23 +903,30 @@ public class UploadService extends Service {
                             mPostUploadNotifier.updateNotificationErrorForPost(postModel, site, message, 0);
                         }
 
-                        mPostUploadHandler.unregisterPostForAnalyticsTracking(postModel);
+                        if (mPostUploadHandler != null) {
+                            mPostUploadHandler.unregisterPostForAnalyticsTracking(postModel);
+                        }
                         EventBus.getDefault().post(
                                 new PostEvents.PostUploadCanceled(postModel));
                     } else {
+
+                        // if event is null we're coming from onDestroy(), we don't want to execute anything else
+                        if (event == null || mPostUploadHandler == null) {
+                            continue;
+                        }
+
                         // Do not re-enqueue a post that has already failed
                         if (event != null && event.isError() && mUploadStore.isFailedPost(event.post)) {
                             continue;
                         }
-                        // TODO Should do some extra validation here
-                        // e.g. what if the post has local media URLs but no pending media uploads?
+
                         mPostUploadHandler.upload(updatedPost);
-                        return true;
+                        atLeastOnePostToUpload = true;
                     }
                 }
             }
         }
-        return false;
+        return atLeastOnePostToUpload;
     }
 
     private boolean isAllFailedMediaUserDeleted(Set<MediaModel> failedMediaSet) {
