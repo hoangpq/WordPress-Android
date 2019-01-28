@@ -23,6 +23,7 @@ import org.wordpress.android.WordPress
 import org.wordpress.android.modules.GlideApp
 import org.wordpress.android.modules.GlideRequest
 import org.wordpress.android.util.AppLog
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -297,6 +298,7 @@ class ImageManager @Inject constructor(val placeholderManager: ImagePlaceholderM
         return if (requestListener == null) {
             this
         } else {
+            val weakListener = WeakReference(requestListener)
             this.listener(object : com.bumptech.glide.request.RequestListener<T> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -304,7 +306,7 @@ class ImageManager @Inject constructor(val placeholderManager: ImagePlaceholderM
                     target: Target<T>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    requestListener.onLoadFailed(e)
+                    weakListener.get()?.onLoadFailed(e)
                     return false
                 }
 
@@ -316,11 +318,11 @@ class ImageManager @Inject constructor(val placeholderManager: ImagePlaceholderM
                     isFirstResource: Boolean
                 ): Boolean {
                     if (resource != null) {
-                        requestListener.onResourceReady(resource)
+                        weakListener.get()?.onResourceReady(resource)
                     } else {
                         // according to the Glide's JavaDoc, this shouldn't happen
                         AppLog.e(AppLog.T.UTILS, "Resource in ImageManager.onResourceReady is null.")
-                        requestListener.onLoadFailed(null)
+                        weakListener.get()?.onLoadFailed(null)
                     }
                     return false
                 }
