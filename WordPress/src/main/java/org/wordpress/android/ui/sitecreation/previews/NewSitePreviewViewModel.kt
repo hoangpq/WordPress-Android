@@ -74,9 +74,6 @@ class NewSitePreviewViewModel @Inject constructor(
     private val _startCreateSiteService: SingleLiveEvent<SitePreviewStartServiceData> = SingleLiveEvent()
     val startCreateSiteService: LiveData<SitePreviewStartServiceData> = _startCreateSiteService
 
-    private val _hideGetStartedBar: SingleLiveEvent<Unit> = SingleLiveEvent()
-    val hideGetStartedBar: LiveData<Unit> = _hideGetStartedBar
-
     private val _onHelpClicked = SingleLiveEvent<Unit>()
     val onHelpClicked: LiveData<Unit> = _onHelpClicked
 
@@ -225,11 +222,13 @@ class NewSitePreviewViewModel @Inject constructor(
             }
         }
         // Load the newly created site in the webview
-        _preloadPreview.postValue(UrlUtils.addUrlSchemeIfNeeded(urlWithoutScheme, true))
+        val urlWithScheme = UrlUtils.addUrlSchemeIfNeeded(urlWithoutScheme, true)
+        // Remove the master bar as to not confuse the users
+        val urlToLoad = "$urlWithScheme?hide_masterbar=true"
+        _preloadPreview.postValue(urlToLoad)
     }
 
     fun onUrlLoaded() {
-        _hideGetStartedBar.call()
         if (!webviewFullyLoadedTracked) {
             webviewFullyLoadedTracked = true
             tracker.trackPreviewWebviewFullyLoaded()
